@@ -2,6 +2,7 @@
 
 import json
 import os
+import uuid
 from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -99,10 +100,10 @@ def ask_question(req: AskRequest):
     from src.pipeline import ask
     result = ask(req.question, trace=PHOENIX_ENABLED)
 
-    span_id = result["metadata"].get("span_id")
+    span_id = result["metadata"].get("span_id") or str(uuid.uuid4())
 
     # Store context server-side for later eval requests
-    if span_id and result.get("contexts"):
+    if result.get("contexts"):
         _store_context(span_id, "\n\n".join(result["contexts"]))
 
     sources = [
