@@ -1,0 +1,212 @@
+[
+  {
+    "id": 1,
+    "question": "How many days of PTO do new employees get per year?",
+    "ground_truth": "New employees (0-2 years tenure) at levels below L5 accrue 15 days of PTO per year. Employees at L5 (Senior) and above receive unlimited PTO regardless of tenure.",
+    "source_docs": ["HR-POL-001"],
+    "difficulty": "simple"
+  },
+  {
+    "id": 2,
+    "question": "What is the minimum password length requirement?",
+    "ground_truth": "Passwords must be minimum 14 characters with at least one uppercase, one lowercase, one number, and one special character.",
+    "source_docs": ["IT-SEC-001"],
+    "difficulty": "simple"
+  },
+  {
+    "id": 3,
+    "question": "What is the maximum gift value I can accept without any approval?",
+    "ground_truth": "Employees may accept gifts valued at $100 or less per occasion without approval, as long as the gift is not cash or cash equivalents and does not create an expectation of reciprocity. The gift must be disclosed to your manager.",
+    "source_docs": ["HR-COC-001"],
+    "difficulty": "simple"
+  },
+  {
+    "id": 4,
+    "question": "What is the 401k employer match?",
+    "ground_truth": "NorthStar matches 100% of the first 4% of salary contributed, plus 50% of the next 2%. The maximum employer match is 5% of salary. Employees are immediately eligible to contribute, but employer matching begins after 6 months of employment.",
+    "source_docs": ["HR-BEN-001"],
+    "difficulty": "simple"
+  },
+  {
+    "id": 5,
+    "question": "How many bereavement days do I get for an immediate family member?",
+    "ground_truth": "Employees receive up to 5 consecutive paid business days for the death of an immediate family member, which includes spouse/domestic partner, child, parent, sibling, grandparent, or grandchild.",
+    "source_docs": ["HR-LOA-001"],
+    "difficulty": "simple"
+  },
+  {
+    "id": 6,
+    "question": "What are the approved AI tools I can use at work?",
+    "ground_truth": "The approved AI tools are: GitHub Copilot Business (for code completion with company source code), Claude (Anthropic) via API (for internal use with Internal/Level 2 data only), ChatGPT Enterprise (OpenAI) (for internal use with Internal/Level 2 data only), and Grammarly Business (for writing assistance with Internal data).",
+    "source_docs": ["IT-SEC-001"],
+    "difficulty": "simple"
+  },
+  {
+    "id": 7,
+    "question": "How long is the equity vesting schedule?",
+    "ground_truth": "Standard vesting is 4 years with a 1-year cliff. After the 1-year cliff, vesting occurs monthly for the remaining 36 months. Vesting begins on the employee's start date.",
+    "source_docs": ["HR-PER-001"],
+    "difficulty": "simple"
+  },
+  {
+    "id": 8,
+    "question": "What is the expense limit for team dinners?",
+    "ground_truth": "Team dinners and celebrations are limited to $75 per person. All expenses over $25 require an itemized receipt.",
+    "source_docs": ["HR-POL-001"],
+    "difficulty": "simple"
+  },
+  {
+    "id": 9,
+    "question": "How many days of jury duty pay does the company provide?",
+    "ground_truth": "Employees receive full pay for up to 10 business days per year for jury duty. If jury service extends beyond 10 days, the employee will receive the difference between jury pay and their regular base salary for up to an additional 20 business days.",
+    "source_docs": ["HR-LOA-001"],
+    "difficulty": "simple"
+  },
+  {
+    "id": 10,
+    "question": "What MFA methods are acceptable?",
+    "ground_truth": "Acceptable MFA methods are hardware security key (preferred) and authenticator app (Google Authenticator, Authy). SMS-based MFA is not permitted.",
+    "source_docs": ["IT-SEC-001"],
+    "difficulty": "simple"
+  },
+  {
+    "id": 11,
+    "question": "I'm an L6 engineer. What's my bonus target and equity grant range?",
+    "ground_truth": "As an L6 employee, your target annual bonus is 15% of base salary. Your typical new hire equity grant range is $75,000-$150,000. Bonus payout depends on company performance (50% weighting) and individual performance (50% weighting), with multipliers ranging from 0% to 150% of target.",
+    "source_docs": ["HR-PER-001"],
+    "difficulty": "cross-document"
+  },
+  {
+    "id": 12,
+    "question": "Can I use ChatGPT to analyze employee compensation data?",
+    "ground_truth": "No. Employee compensation data is classified as Confidential (Level 3), and Confidential data must never be input into any AI tool. Currently no AI tools are approved for Confidential data. Only Internal (Level 2) data can be used with approved AI tools like ChatGPT Enterprise.",
+    "source_docs": ["IT-SEC-001", "HR-PER-001"],
+    "difficulty": "cross-document"
+  },
+  {
+    "id": 13,
+    "question": "I want to take sabbatical leave. What are the eligibility requirements and how much do I get paid?",
+    "ground_truth": "You must have 7 or more continuous years of service at NorthStar to be eligible for sabbatical. You receive 4 weeks of paid sabbatical at 100% of base salary. An additional 2-4 weeks of unpaid sabbatical may be approved. The sabbatical must be taken in a single continuous block, and you may not combine it with PTO to extend the paid period. Requests must be submitted at least 6 months in advance.",
+    "source_docs": ["HR-LOA-001"],
+    "difficulty": "cross-document"
+  },
+  {
+    "id": 14,
+    "question": "What happens to my stock options if I resign?",
+    "ground_truth": "If you voluntarily resign, vested stock options must be exercised within 90 days of termination. All unvested equity continues on the standard vesting schedule until your termination date, at which point unvested options are forfeited. RSUs that have vested are your property regardless of termination type.",
+    "source_docs": ["HR-PER-001"],
+    "difficulty": "cross-document"
+  },
+  {
+    "id": 15,
+    "question": "I'm a Director (L7). Can I take on an advisory board position at a startup?",
+    "ground_truth": "Employees at Director level (Level 7) and above must obtain written approval from the CEO for any outside board positions, advisory roles, or compensated speaking engagements. You also need to disclose it as a potential conflict of interest through the Conflict of Interest Disclosure Form. The activity must not interfere with NorthStar responsibilities, compete with the business, or use confidential information.",
+    "source_docs": ["HR-COC-001"],
+    "difficulty": "cross-document"
+  },
+  {
+    "id": 16,
+    "question": "What medical plans are available and how much does the company pay?",
+    "ground_truth": "Three medical plans are available: PPO Premier (Plan A) with company paying 90% of premium, PPO Standard (Plan B) with company paying 80%, and HDHP with HSA (Plan C) with company paying 85%. Employee monthly costs for individual coverage are approximately $95 (Plan A), $75 (Plan B), and $45 (Plan C). All plans are through Anthem Blue Cross.",
+    "source_docs": ["HR-BEN-001"],
+    "difficulty": "cross-document"
+  },
+  {
+    "id": 17,
+    "question": "How do geographic pay zones work and what cities are in Zone 1?",
+    "ground_truth": "NorthStar uses three geographic pay zones that apply a modifier to the national base salary band. Zone 1 (High Cost) is 100% of the band and includes San Francisco Bay Area, New York City, Seattle, and Boston. Zone 2 (Mid Cost) is 90% and includes Austin, Denver, Los Angeles, Chicago, Washington DC, San Diego, and Portland. Zone 3 (Lower Cost) is 80% for all other approved remote locations. If you move zones, your compensation adjusts the first of the month following the move.",
+    "source_docs": ["HR-PER-001"],
+    "difficulty": "cross-document"
+  },
+  {
+    "id": 18,
+    "question": "What professional development budget do I get and can I also get tuition reimbursement?",
+    "ground_truth": "Each employee receives $2,500 per year for professional development (Directors/L7+ get $5,000). Separately, tuition reimbursement covers up to $10,000 per calendar year for degree programs related to your role, but requires 2 years of tenure, pre-approval from VP and People team, maintaining a B average, and a 2-year employment commitment after receiving the reimbursement. Tuition reimbursement is separate from the professional development budget.",
+    "source_docs": ["HR-PER-001"],
+    "difficulty": "cross-document"
+  },
+  {
+    "id": 19,
+    "question": "What is the process if I accidentally paste customer data into ChatGPT?",
+    "ground_truth": "You must: 1) Stop immediately and do not submit additional prompts, 2) Report to IT Security within 1 hour at security@northstarlabs.com, 3) Document what data was shared and which tool was used, 4) IT Security will assess the risk and take appropriate action. This is not punitive if reported promptly. Customer data (PII) is classified as Restricted (Level 4) and must never be input into any AI tool. Failure to report is a policy violation.",
+    "source_docs": ["IT-SEC-001"],
+    "difficulty": "cross-document"
+  },
+  {
+    "id": 20,
+    "question": "What recognition programs does NorthStar offer?",
+    "ground_truth": "NorthStar offers: 1) Quarterly Awards - Impact Award, Innovation Award, and Culture Award (each with $500 gift), 2) Peer Recognition through Bonusly - $50/month in points to give colleagues, redeemable for gift cards/donations/swag, and 3) Service Milestones - 1 year (all-hands recognition), 3 years ($250 gift), 5 years ($500 gift + floating holiday), 7 years (sabbatical eligibility), 10 years ($1,000 gift + 2 floating holidays + annual event recognition).",
+    "source_docs": ["HR-PER-001"],
+    "difficulty": "cross-document"
+  },
+  {
+    "id": 21,
+    "question": "I've been here 4 months and my partner is having a baby. What leave do I get?",
+    "ground_truth": "With only 4 months of tenure, you are not yet eligible for NorthStar's paid parental leave (requires 6 months). You would receive FMLA-only benefits if FMLA-eligible (requires 12 months and 1,250 hours worked), or up to 4 weeks of unpaid leave if not FMLA-eligible. You should coordinate with the People team to understand your specific options.",
+    "source_docs": ["HR-LOA-001"],
+    "difficulty": "conditional"
+  },
+  {
+    "id": 22,
+    "question": "A vendor sent me a $150 gift card during an RFP process. Can I keep it?",
+    "ground_truth": "No, you cannot keep it for two reasons: 1) During vendor selection processes (RFPs, contract renewals), no gifts of any value may be accepted from participating vendors, and 2) Gift cards are considered cash equivalents, which are never allowed regardless of value. You should decline or turn the gift over to the People team.",
+    "source_docs": ["HR-COC-001"],
+    "difficulty": "conditional"
+  },
+  {
+    "id": 23,
+    "question": "I'm moving from NYC to Austin. What happens to my salary?",
+    "ground_truth": "Your salary will be adjusted from Zone 1 (100% modifier) to Zone 2 (90% modifier). The adjustment is effective the first of the month following your move. You must notify the People team at least 30 days before relocating. Austin must be in an approved remote work state (see Employee Handbook HR-POL-001 Section 3.2).",
+    "source_docs": ["HR-PER-001", "HR-POL-001"],
+    "difficulty": "conditional"
+  },
+  {
+    "id": 24,
+    "question": "I got a 'Needs Improvement' rating. Am I eligible for a merit increase or equity refresh?",
+    "ground_truth": "No to both. Employees with a 'Needs Improvement' rating receive 0% merit increase, and employees rated 'Needs Improvement' or below do not receive refresh grants. A 'Needs Improvement' rating may also trigger a Performance Improvement Plan (PIP), and employees on a PIP are not eligible for merit increases.",
+    "source_docs": ["HR-PER-001"],
+    "difficulty": "conditional"
+  },
+  {
+    "id": 25,
+    "question": "Can I use my personal iPhone to access the company GitHub repository?",
+    "ground_truth": "No. Personal devices (BYOD) may only be used to access company email and Slack, provided they meet requirements (screen lock, current OS, MDM profile installed). Personal devices may NOT be used to access source code repositories, production environments, customer data, or financial systems.",
+    "source_docs": ["IT-SEC-001"],
+    "difficulty": "conditional"
+  },
+  {
+    "id": 26,
+    "question": "I'm an L4 employee with 1 year of tenure. Am I eligible for the HSA and what's the company contribution?",
+    "ground_truth": "You are eligible for the HSA only if you enroll in the HDHP plan (Plan C). You cannot have an HSA with the PPO plans. If enrolled in the HDHP, NorthStar contributes $750/year for individual coverage or $1,500/year for family coverage to your HSA. The 2025 IRS contribution limits are $4,150 for individual and $8,300 for family. Note: you cannot have both an HSA and a Healthcare FSA.",
+    "source_docs": ["HR-BEN-001"],
+    "difficulty": "conditional"
+  },
+  {
+    "id": 27,
+    "question": "I've been here 8 years and want to take sabbatical then use tuition reimbursement when I return. Am I eligible for both?",
+    "ground_truth": "Yes, you are eligible for both. For sabbatical: you exceed the 7-year continuous service requirement, so you can take 4 weeks paid (100% base salary) plus potentially 2-4 weeks unpaid, submitted 6 months in advance. For tuition reimbursement: you exceed the 2-year tenure requirement, so you can receive up to $10,000/year for an approved degree program. These are separate benefits. The sabbatical must be in a single continuous block, and tuition reimbursement requires pre-approval and a B average.",
+    "source_docs": ["HR-LOA-001", "HR-PER-001"],
+    "difficulty": "conditional"
+  },
+  {
+    "id": 28,
+    "question": "I failed 3 phishing simulations this year. What happens next?",
+    "ground_truth": "Three failures within a 12-month period results in a meeting with your manager and IT Security to develop a personalized security improvement plan. Each individual failure also results in additional targeted training.",
+    "source_docs": ["IT-SEC-001"],
+    "difficulty": "conditional"
+  },
+  {
+    "id": 29,
+    "question": "My manager wants to give me a $3,000 spot bonus. Is that allowed?",
+    "ground_truth": "Spot bonuses above $2,500 require VP approval. Managers at L7 and above may award spot bonuses of up to $2,500 without additional approval. So your manager would need to get VP approval for a $3,000 spot bonus. The maximum total spot bonus per employee per year is $10,000.",
+    "source_docs": ["HR-PER-001"],
+    "difficulty": "conditional"
+  },
+  {
+    "id": 30,
+    "question": "I'm on FMLA leave. What happens to my health insurance and do I need to pay for it?",
+    "ground_truth": "Health insurance coverage continues during FMLA leave at the same employee premium rate you normally pay. However, if you fail to return from FMLA leave (except due to continuation of a serious health condition), NorthStar may recover the employer-paid portion of health insurance premiums during the leave period.",
+    "source_docs": ["HR-LOA-001", "HR-BEN-001"],
+    "difficulty": "conditional"
+  }
+]
