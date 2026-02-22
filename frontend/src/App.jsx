@@ -100,7 +100,7 @@ function EvalDashboard() {
         <h3>RAG Pipeline Evaluation</h3>
         <p>Run individual test cases to compare the RAG pipeline answer against the expected ground truth. Traces and eval scores are logged to Phoenix.</p>
         <a
-          href="http://localhost:6006"
+          href="https://app.phoenix.arize.com"
           target="_blank"
           rel="noopener noreferrer"
           className="phoenix-link-inline"
@@ -297,7 +297,7 @@ function App() {
       setMessages(prev => prev.map((m, i) =>
         i === messageIndex ? { ...m, evalLoading: false, evalResult: { error: true } } : m
       ))
-      window.open('http://localhost:6006', '_blank', 'noopener,noreferrer')
+      window.open('https://app.phoenix.arize.com', '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -320,7 +320,7 @@ function App() {
         <div className="header-top">
           <h1>NorthStar Policy Q&A</h1>
           <a
-            href="http://localhost:6006"
+            href="https://app.phoenix.arize.com"
             target="_blank"
             rel="noopener noreferrer"
             className="phoenix-btn"
@@ -438,7 +438,7 @@ function App() {
                         </div>
                         <div className="eval-phoenix-note">
                           Logged to{' '}
-                          <a href="http://localhost:6006" target="_blank" rel="noopener noreferrer">
+                          <a href="https://app.phoenix.arize.com" target="_blank" rel="noopener noreferrer">
                             Phoenix
                           </a>
                         </div>
@@ -449,7 +449,7 @@ function App() {
                         <span className="eval-error">Eval failed</span>
                         <div className="eval-phoenix-note">
                           Check{' '}
-                          <a href="http://localhost:6006" target="_blank" rel="noopener noreferrer">
+                          <a href="https://app.phoenix.arize.com" target="_blank" rel="noopener noreferrer">
                             Phoenix
                           </a>
                           {' '}for details

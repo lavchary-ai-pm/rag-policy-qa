@@ -26,7 +26,7 @@ load_dotenv()
 
 app = FastAPI(title="NorthStar Policy Q&A API")
 
-PHOENIX_ENABLED = not os.getenv("DISABLE_PHOENIX")
+PHOENIX_ENABLED = bool(os.getenv("PHOENIX_API_KEY")) or not os.getenv("DISABLE_PHOENIX")
 
 _cors_origins = ["http://localhost:5173", "http://localhost:3000", "http://localhost:5174"]
 if os.getenv("FRONTEND_URL"):
@@ -54,7 +54,8 @@ def _store_context(span_id: str, context: str):
 def startup():
     from src.pipeline import launch_phoenix, init_tracing
     if PHOENIX_ENABLED:
-        launch_phoenix()
+        if not os.getenv("PHOENIX_API_KEY"):
+            launch_phoenix()
         init_tracing()
 
 
@@ -302,7 +303,14 @@ def log_evals_to_phoenix(span_id: str, hallucination: dict, qa_correctness: dict
     if not PHOENIX_ENABLED:
         return
     try:
-        client = PhoenixClient()
+        phoenix_api_key = os.getenv("PHOENIX_API_KEY")
+        if phoenix_api_key:
+            client = PhoenixClient(
+                base_url="https://app.phoenix.arize.com",
+                headers={"api_key": phoenix_api_key},
+            )
+        else:
+            client = PhoenixClient()
         client.spans.log_span_annotations(span_annotations=annotations)
     except Exception:
         pass

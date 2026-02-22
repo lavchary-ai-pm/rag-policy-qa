@@ -1,5 +1,6 @@
 """End-to-end RAG pipeline with Arize Phoenix tracing."""
 
+import os
 import phoenix as px
 from phoenix.otel import register
 from openinference.instrumentation import (
@@ -19,15 +20,30 @@ _phoenix_session = None
 
 
 def init_tracing():
-    """Initialize Phoenix tracing. Returns the OITracer."""
+    """Initialize Phoenix tracing. Returns the OITracer.
+
+    Uses Phoenix Cloud if PHOENIX_API_KEY is set, otherwise local Phoenix.
+    """
     global _oi_tracer
     if _oi_tracer is not None:
         return _oi_tracer
 
-    tracer_provider = register(
-        project_name="rag-policy-qa",
-        batch=False,
-    )
+    phoenix_api_key = os.getenv("PHOENIX_API_KEY")
+    if phoenix_api_key:
+        os.environ["PHOENIX_CLIENT_HEADERS"] = f"api_key={phoenix_api_key}"
+        os.environ["PHOENIX_COLLECTOR_ENDPOINT"] = "https://app.phoenix.arize.com"
+        tracer_provider = register(
+            project_name="rag-policy-qa",
+            endpoint="https://app.phoenix.arize.com/v1/traces",
+            batch=True,
+            headers={"api_key": phoenix_api_key},
+        )
+    else:
+        tracer_provider = register(
+            project_name="rag-policy-qa",
+            batch=False,
+        )
+
     tracer = tracer_provider.get_tracer(__name__)
     _oi_tracer = OITracer(tracer, TraceConfig())
     return _oi_tracer
