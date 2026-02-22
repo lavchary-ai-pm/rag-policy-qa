@@ -31,13 +31,15 @@ def init_tracing():
     phoenix_api_key = os.getenv("PHOENIX_API_KEY")
     phoenix_space = os.getenv("PHOENIX_SPACE", "lavchary")
     if phoenix_api_key:
-        cloud_endpoint = f"https://app.phoenix.arize.com/s/{phoenix_space}"
-        os.environ["PHOENIX_COLLECTOR_ENDPOINT"] = cloud_endpoint
-        os.environ["PHOENIX_CLIENT_HEADERS"] = f"api_key={phoenix_api_key}"
+        # Set env vars so register() auto-detects Phoenix Cloud.
+        # IMPORTANT: Do NOT pass endpoint= explicitly - that bypasses
+        # the known-provider logic that appends /v1/traces to the URL.
+        os.environ["PHOENIX_COLLECTOR_ENDPOINT"] = (
+            f"https://app.phoenix.arize.com/s/{phoenix_space}"
+        )
+        os.environ["PHOENIX_API_KEY"] = phoenix_api_key
         tracer_provider = register(
             project_name="rag-policy-qa",
-            endpoint=cloud_endpoint,
-            api_key=phoenix_api_key,
             batch=True,
         )
     else:
