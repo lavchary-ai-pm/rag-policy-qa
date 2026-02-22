@@ -14,8 +14,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from phoenix.evals import (
     llm_classify,
     ClassificationTemplate,
-    QA_PROMPT_TEMPLATE,
-    HALLUCINATION_PROMPT_TEMPLATE,
     AnthropicModel,
 )
 from phoenix.client import Client as PhoenixClient
@@ -24,7 +22,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = FastAPI(title="NorthStar Policy Q&A API")
+app = FastAPI(title="NorthStar Labs - AskHR API")
 
 PHOENIX_ENABLED = bool(os.getenv("PHOENIX_API_KEY")) or not os.getenv("DISABLE_PHOENIX")
 
@@ -160,61 +158,65 @@ def get_eval_model():
     return _eval_model
 
 
-def run_hallucination_eval(question: str, rag_answer: str, context: str) -> dict:
-    """Run Phoenix hallucination eval (is the answer grounded in context?)."""
-    model = get_eval_model()
+# --- 3-Level Eval Templates (Industry-standard: 1.0 / 0.5 / 0.0) ---
 
-    hal_df = pd.DataFrame([{
-        "input": question,
-        "reference": context,
-        "output": rag_answer,
-    }])
-    hal_result = llm_classify(
-        data=hal_df,
-        model=model,
-        template=HALLUCINATION_PROMPT_TEMPLATE,
-        rails=HALLUCINATION_PROMPT_TEMPLATE.rails,
-        provide_explanation=True,
-        run_sync=True,
-        concurrency=1,
-    )
-
-    return {
-        "label": hal_result["label"].iloc[0] or "error",
-        "explanation": hal_result["explanation"].iloc[0] or "",
-    }
-
-
-def run_qa_correctness_eval(question: str, rag_answer: str, ground_truth: str) -> dict:
-    """Run Phoenix QA correctness eval (does the answer match ground truth?)."""
-    model = get_eval_model()
-
-    qa_df = pd.DataFrame([{
-        "input": question,
-        "reference": ground_truth,
-        "output": rag_answer,
-    }])
-    qa_result = llm_classify(
-        data=qa_df,
-        model=model,
-        template=QA_PROMPT_TEMPLATE,
-        rails=QA_PROMPT_TEMPLATE.rails,
-        provide_explanation=True,
-        run_sync=True,
-        concurrency=1,
-    )
-
-    return {
-        "label": qa_result["label"].iloc[0] or "error",
-        "explanation": qa_result["explanation"].iloc[0] or "",
-    }
-
-
-COMPLETENESS_PROMPT_TEMPLATE = ClassificationTemplate(
-    rails=["complete", "incomplete"],
+FAITHFULNESS_TEMPLATE = ClassificationTemplate(
+    rails=["factual", "mixed", "hallucinated"],
     template=(
-        "You are evaluating whether an AI assistant's answer fully addresses all parts of the "
-        "user's question, given the available context.\n\n"
+        "You are evaluating whether an AI assistant's answer is grounded in the "
+        "provided reference context.\n\n"
+        "[BEGIN DATA]\n"
+        "************\n"
+        "[Question]: {input}\n"
+        "************\n"
+        "[Reference Context]: {reference}\n"
+        "************\n"
+        "[Answer]: {output}\n"
+        "************\n"
+        "[END DATA]\n\n"
+        "Evaluate the answer against the reference context:\n"
+        "- 'factual': Every claim in the answer is supported by the context. "
+        "No information is fabricated or assumed beyond what the context provides.\n"
+        "- 'mixed': Some claims are supported by the context, but the answer also "
+        "contains claims that are not found in or contradict the context.\n"
+        "- 'hallucinated': The answer contains significant claims that are fabricated, "
+        "contradicted by, or entirely unsupported by the context.\n\n"
+        "First, briefly explain your reasoning in 1-2 sentences. "
+        "Then on a new line, provide your classification as one of: factual, mixed, hallucinated."
+    ),
+)
+
+QA_CORRECTNESS_TEMPLATE = ClassificationTemplate(
+    rails=["correct", "partially_correct", "incorrect"],
+    template=(
+        "You are evaluating whether an AI assistant's answer matches the expected "
+        "ground truth answer.\n\n"
+        "[BEGIN DATA]\n"
+        "************\n"
+        "[Question]: {input}\n"
+        "************\n"
+        "[Expected Answer]: {reference}\n"
+        "************\n"
+        "[Actual Answer]: {output}\n"
+        "************\n"
+        "[END DATA]\n\n"
+        "Compare the actual answer to the expected answer:\n"
+        "- 'correct': The answer captures all key facts and conclusions from the "
+        "expected answer. Minor wording differences are acceptable.\n"
+        "- 'partially_correct': The answer captures some key facts from the expected "
+        "answer but misses important details, conditions, or nuances.\n"
+        "- 'incorrect': The answer contradicts the expected answer, misses the main "
+        "point entirely, or provides substantially wrong information.\n\n"
+        "First, briefly explain your reasoning in 1-2 sentences. "
+        "Then on a new line, provide your classification as one of: correct, partially_correct, incorrect."
+    ),
+)
+
+COMPLETENESS_TEMPLATE = ClassificationTemplate(
+    rails=["complete", "partial", "incomplete"],
+    template=(
+        "You are evaluating whether an AI assistant's answer fully addresses all parts "
+        "of the user's question, given the available context.\n\n"
         "[BEGIN DATA]\n"
         "************\n"
         "[Question]: {input}\n"
@@ -224,78 +226,113 @@ COMPLETENESS_PROMPT_TEMPLATE = ClassificationTemplate(
         "[Answer]: {output}\n"
         "************\n"
         "[END DATA]\n\n"
-        "Determine if the answer addresses every aspect and sub-question in the user's question, "
-        "using the information available in the context. An answer is 'complete' if it covers all "
-        "parts of the question that CAN be answered from the context. An answer is 'incomplete' if "
-        "it misses key aspects that ARE present in the context.\n\n"
-        "Your response must be a single word, either 'complete' or 'incomplete'."
+        "Evaluate how completely the answer addresses the question:\n"
+        "- 'complete': The answer addresses every aspect and sub-question using the "
+        "information available in the context. Nothing answerable is left out.\n"
+        "- 'partial': The answer addresses the main question but misses some aspects, "
+        "sub-questions, or important conditions that ARE present in the context.\n"
+        "- 'incomplete': The answer misses the core question or leaves out most of the "
+        "relevant information available in the context.\n\n"
+        "First, briefly explain your reasoning in 1-2 sentences. "
+        "Then on a new line, provide your classification as one of: complete, partial, incomplete."
     ),
 )
 
+# Score mappings for 3-level evals
+FAITHFULNESS_SCORES = {"factual": 1.0, "mixed": 0.5, "hallucinated": 0.0}
+QA_CORRECTNESS_SCORES = {"correct": 1.0, "partially_correct": 0.5, "incorrect": 0.0}
+COMPLETENESS_SCORES = {"complete": 1.0, "partial": 0.5, "incomplete": 0.0}
+
+
+def run_hallucination_eval(question: str, rag_answer: str, context: str) -> dict:
+    """Run faithfulness eval: is the answer grounded in context?"""
+    model = get_eval_model()
+    df = pd.DataFrame([{"input": question, "reference": context, "output": rag_answer}])
+    result = llm_classify(
+        data=df, model=model,
+        template=FAITHFULNESS_TEMPLATE,
+        rails=FAITHFULNESS_TEMPLATE.rails,
+        provide_explanation=True, run_sync=True, concurrency=1,
+    )
+    label = result["label"].iloc[0] or "error"
+    return {
+        "label": label,
+        "score": FAITHFULNESS_SCORES.get(label),
+        "explanation": result["explanation"].iloc[0] or "",
+    }
+
+
+def run_qa_correctness_eval(question: str, rag_answer: str, ground_truth: str) -> dict:
+    """Run QA correctness eval: does the answer match ground truth?"""
+    model = get_eval_model()
+    df = pd.DataFrame([{"input": question, "reference": ground_truth, "output": rag_answer}])
+    result = llm_classify(
+        data=df, model=model,
+        template=QA_CORRECTNESS_TEMPLATE,
+        rails=QA_CORRECTNESS_TEMPLATE.rails,
+        provide_explanation=True, run_sync=True, concurrency=1,
+    )
+    label = result["label"].iloc[0] or "error"
+    return {
+        "label": label,
+        "score": QA_CORRECTNESS_SCORES.get(label),
+        "explanation": result["explanation"].iloc[0] or "",
+    }
+
 
 def run_completeness_eval(question: str, rag_answer: str, context: str) -> dict:
-    """Run completeness eval (does the answer address all parts of the question?)."""
+    """Run completeness eval: does the answer address all parts of the question?"""
     model = get_eval_model()
-
-    df = pd.DataFrame([{
-        "input": question,
-        "reference": context,
-        "output": rag_answer,
-    }])
+    df = pd.DataFrame([{"input": question, "reference": context, "output": rag_answer}])
     result = llm_classify(
-        data=df,
-        model=model,
-        template=COMPLETENESS_PROMPT_TEMPLATE,
-        rails=COMPLETENESS_PROMPT_TEMPLATE.rails,
-        provide_explanation=True,
-        run_sync=True,
-        concurrency=1,
+        data=df, model=model,
+        template=COMPLETENESS_TEMPLATE,
+        rails=COMPLETENESS_TEMPLATE.rails,
+        provide_explanation=True, run_sync=True, concurrency=1,
     )
-
+    label = result["label"].iloc[0] or "error"
     return {
-        "label": result["label"].iloc[0] or "error",
+        "label": label,
+        "score": COMPLETENESS_SCORES.get(label),
         "explanation": result["explanation"].iloc[0] or "",
     }
 
 
 def log_evals_to_phoenix(span_id: str, hallucination: dict, qa_correctness: dict | None = None, completeness: dict | None = None):
     """Log eval results to Phoenix via the span annotations API."""
-    hal_label = hallucination["label"]
     annotations = [
         {
-            "name": "Hallucination",
+            "name": "Faithfulness",
             "annotator_kind": "LLM",
             "span_id": span_id,
             "result": {
-                "label": hal_label,
-                "score": 1.0 if hal_label == "factual" else 0.0,
+                "label": hallucination["label"],
+                "score": hallucination.get("score", FAITHFULNESS_SCORES.get(hallucination["label"], 0.0)),
                 "explanation": hallucination["explanation"],
             },
         },
     ]
 
     if qa_correctness:
-        qa_label = qa_correctness["label"]
         annotations.append({
             "name": "QA Correctness",
             "annotator_kind": "LLM",
             "span_id": span_id,
             "result": {
-                "label": qa_label,
-                "score": 1.0 if qa_label == "correct" else 0.0,
+                "label": qa_correctness["label"],
+                "score": qa_correctness.get("score", QA_CORRECTNESS_SCORES.get(qa_correctness["label"], 0.0)),
                 "explanation": qa_correctness["explanation"],
             },
         })
 
     if completeness:
-        comp_label = completeness["label"]
         annotations.append({
-            "name": "Answer Completeness",
+            "name": "Completeness",
             "annotator_kind": "LLM",
             "span_id": span_id,
             "result": {
-                "label": comp_label,
-                "score": 1.0 if comp_label == "complete" else 0.0,
+                "label": completeness["label"],
+                "score": completeness.get("score", COMPLETENESS_SCORES.get(completeness["label"], 0.0)),
                 "explanation": completeness["explanation"],
             },
         })
@@ -304,10 +341,11 @@ def log_evals_to_phoenix(span_id: str, hallucination: dict, qa_correctness: dict
         return
     try:
         phoenix_api_key = os.getenv("PHOENIX_API_KEY")
+        phoenix_space = os.getenv("PHOENIX_SPACE", "lavchary")
         if phoenix_api_key:
             client = PhoenixClient(
-                base_url="https://app.phoenix.arize.com",
-                headers={"api_key": phoenix_api_key},
+                base_url=f"https://app.phoenix.arize.com/s/{phoenix_space}",
+                headers={"Authorization": f"Bearer {phoenix_api_key}"},
             )
         else:
             client = PhoenixClient()

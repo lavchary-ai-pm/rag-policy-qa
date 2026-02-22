@@ -21,6 +21,20 @@ const ALL_SUGGESTIONS = [
   "What recognition programs does NorthStar offer?",
 ]
 
+// Map eval labels to pill display style (good / partial / poor)
+function evalPillClass(metric, label) {
+  const goodLabels = { faithfulness: 'factual', qa_correctness: 'correct', completeness: 'complete' }
+  const partialLabels = { faithfulness: 'mixed', qa_correctness: 'partially_correct', completeness: 'partial' }
+  if (label === goodLabels[metric]) return 'good'
+  if (label === partialLabels[metric]) return 'partial'
+  return 'poor'
+}
+
+// Format label for display (replace underscores with spaces)
+function formatLabel(label) {
+  return label ? label.replace(/_/g, ' ') : ''
+}
+
 const EVAL_CASES = [
   {
     question: "I'm moving from NYC to Austin. What happens to my salary?",
@@ -145,14 +159,14 @@ function EvalDashboard() {
                 <div className="eval-card-result">
                   {result.evals && (
                     <div className="eval-scores">
-                      <div className={`eval-score-pill ${result.evals.qa_correctness?.label === 'correct' ? 'good' : 'poor'}`}>
-                        QA: {result.evals.qa_correctness?.label}
+                      <div className={`eval-score-pill ${evalPillClass('qa_correctness', result.evals.qa_correctness?.label)}`}>
+                        QA: {formatLabel(result.evals.qa_correctness?.label)} ({result.evals.qa_correctness?.score ?? '—'})
                       </div>
-                      <div className={`eval-score-pill ${result.evals.hallucination?.label === 'factual' ? 'good' : 'poor'}`}>
-                        Faithfulness: {result.evals.hallucination?.label}
+                      <div className={`eval-score-pill ${evalPillClass('faithfulness', result.evals.hallucination?.label)}`}>
+                        Faithfulness: {formatLabel(result.evals.hallucination?.label)} ({result.evals.hallucination?.score ?? '—'})
                       </div>
-                      <div className={`eval-score-pill ${result.evals.completeness?.label === 'complete' ? 'good' : 'poor'}`}>
-                        Completeness: {result.evals.completeness?.label}
+                      <div className={`eval-score-pill ${evalPillClass('completeness', result.evals.completeness?.label)}`}>
+                        Completeness: {formatLabel(result.evals.completeness?.label)} ({result.evals.completeness?.score ?? '—'})
                       </div>
                       {result.evals.qa_correctness?.explanation && (
                         <details className="eval-explanation">
@@ -318,7 +332,7 @@ function App() {
     <div className="app">
       <div className="header">
         <div className="header-top">
-          <h1>NorthStar Policy Q&A</h1>
+          <h1>NorthStar Labs - AskHR</h1>
           <a
             href="https://app.phoenix.arize.com"
             target="_blank"
@@ -417,11 +431,11 @@ function App() {
                     {msg.evalResult && !msg.evalResult.error && (
                       <div className="chat-eval-result">
                         <div className="eval-scores">
-                          <div className={`eval-score-pill ${msg.evalResult.hallucination?.label === 'factual' ? 'good' : 'poor'}`}>
-                            Faithfulness: {msg.evalResult.hallucination?.label}
+                          <div className={`eval-score-pill ${evalPillClass('faithfulness', msg.evalResult.hallucination?.label)}`}>
+                            Faithfulness: {formatLabel(msg.evalResult.hallucination?.label)} ({msg.evalResult.hallucination?.score ?? '—'})
                           </div>
-                          <div className={`eval-score-pill ${msg.evalResult.completeness?.label === 'complete' ? 'good' : 'poor'}`}>
-                            Completeness: {msg.evalResult.completeness?.label}
+                          <div className={`eval-score-pill ${evalPillClass('completeness', msg.evalResult.completeness?.label)}`}>
+                            Completeness: {formatLabel(msg.evalResult.completeness?.label)} ({msg.evalResult.completeness?.score ?? '—'})
                           </div>
                           {msg.evalResult.hallucination?.explanation && (
                             <details className="eval-explanation">
